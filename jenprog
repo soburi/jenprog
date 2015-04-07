@@ -156,7 +156,7 @@ else:
     stderr.write("done\n")
 
     if options.verify:
-        raise Exception, "not implemented"
+        raise Exception("not implemented")
 
 # this restarts the module on some programmers
 bl.finish()

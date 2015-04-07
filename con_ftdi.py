@@ -54,7 +54,7 @@ class Ftdi:
         ftdi_init(self.context)
 
     def __call__(self, *args):
-        print args
+        print(args)
 
     def __getattr__(self, name):
         return Closure(self.context, eval("ftdi_%s"%name))
