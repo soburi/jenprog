@@ -87,12 +87,12 @@ class IPBootloader(JennicProtocol):
         msg += pack('!B', 0) #self.crc(msg, len))
 
 
-        if self.isverbose: print "-> %i"%len(msg)
+        if self.isverbose: print("-> %i"%len(msg))
         self.sock.send(msg)
 
         if ans_type!=None:
             ans = self.sock.recv(1024)
-            if self.isverbose: print "<- %i"%len(ans)
+            if self.isverbose: print("<- %i"%len(ans))
             return map(ord,ans[2:-1])
         else:
             return None

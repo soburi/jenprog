@@ -44,7 +44,7 @@ class Closure:
     def __call__(self, *args):
         val = self.func(self.arg, *args)
         if val < 0:
-            raise Exception, "%s: %d"%(ftdi_get_error_string(self.arg), val)
+            raise Exception("%s: %d"%(ftdi_get_error_string(self.arg), val))
         else:
             return val
 

@@ -44,11 +44,11 @@ class JennicProtocol:
     def select_flash(self):
         self.identify_flash()
         if not self.flash_jennicid in (0x00, 0x01, 0x02, 0x03):
-            print "unsupported flash type"
+            print("unsupported flash type")
             sys.exit(1)
         status = self.talk(0x2C, 0x2D, data = [self.flash_jennicid])[0]
         if not status == 0:
-            print "could not select detected flash type was: %d"%status
+            print("could not select detected flash type was: %d"%status)
             sys.exit(1)
 
     def identify_flash(self):
@@ -58,7 +58,7 @@ class JennicProtocol:
         self.flash_type         = flash[2]
 
         if not self.flash_status == 0:
-            print "flash status != 0 (%c)"%self.flash_status
+            print("flash status != 0 (%c)"%self.flash_status)
             sys.exit(0)
 
         if self.flash_manufacturer == 0x10 and self.flash_type == 0x10:
@@ -99,7 +99,7 @@ class JennicProtocol:
                 self.mac.append( int( s[i:i+2], 16 ) )
 
         if not len(self.mac)==len(self.mac_region):
-            print "mac must be %i byte long"%len(self.mac_region)
+            print("mac must be %i byte long"%len(self.mac_region))
             sys.exit(1)
 
     def set_license(self, s):
@@ -110,7 +110,7 @@ class JennicProtocol:
                 self.lic.append( int( s[i:i+2], 16 ) )
 
         if not len(self.lic)==len(self.lic_region):
-            print "license must be %i byte long"%len(self.lic_region)
+            print("license must be %i byte long"%len(self.lic_region))
             sys.exit(1)
 
     def erase_flash(self):
@@ -147,7 +147,7 @@ class JennicProtocol:
         status = self.talk( 0x09, 0x0A, addr, data=list)
 
         if status[0] != 0:
-            raise Exception, "writing failed for addr %i status=%i len=%i"%(addr, status[0], len(status))
+            raise Exception("writing failed for addr %i status=%i len=%i"%(addr, status[0], len(status)))
 
     def read_flash(self, addr, len):
         """ reads len bytes starting at address addr from
