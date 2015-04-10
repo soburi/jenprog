@@ -1,20 +1,20 @@
-''''
-ftdi wrapper 
-==================
+#
+# ftdi wrapper 
+# ==================
+#
+# requrirements:
+# -------------------
+# * libftdi
+# * swig
+# * python2.6+
+#
+#
+# building
+# ----------------
+# 1. scons
+# 2. sudo scons install
+#
 
-requrirements:
--------------------
-* libftdi
-* swig
-* python2.6+
-
-
-building
-----------------
-1. scons
-2. sudo scons install
-
-''''
 
 import sys
 import os
