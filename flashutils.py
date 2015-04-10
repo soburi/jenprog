@@ -35,15 +35,19 @@ import sys
 class JennicProtocol:
     def __init__(self):
         self.mac_region    = range(0x00000030, 0x00000038)
+        self.mac_region_jn516x    = range(0x01001570, 0x01001578)
+        self.cust_mac_region_jn516x  = range(0x01001580, 0x01001588)
         self.lic_region    = range(0x00000038, 0x00000048)
         self.mac, self.lic = None, None
-        self.isverbose     = None
+        self.isverbose     = True
         self.preferedblocksize = None
+        self.baudrate = 38400
+        #self.write_baudrate()
         self.select_flash()
 
     def select_flash(self):
         self.identify_flash()
-        if not self.flash_jennicid in (0x00, 0x01, 0x02, 0x03):
+        if not self.flash_jennicid in (0x00, 0x01, 0x02, 0x03, 0x08):
             print("unsupported flash type")
             sys.exit(1)
         status = self.talk(0x2C, 0x2D, data = [self.flash_jennicid])[0]
@@ -52,6 +56,7 @@ class JennicProtocol:
             sys.exit(1)
 
     def identify_flash(self):
+        print("identify flash")
         flash = self.talk(0x25, 0x26)
         self.flash_status       = flash[0]
         self.flash_manufacturer = flash[1]
@@ -78,10 +83,17 @@ class JennicProtocol:
             self.flash_manufacturer = "ST"
             self.flash_type         = "M25P40"
             self.flash_jennicid     = 0x03
+        elif self.flash_manufacturer == 0xCC and self.flash_type == 0xEE:
+            self.flash_manufacturer = "JN516x"
+            self.flash_type         = ""
+            self.flash_jennicid     = 0x08
         else:
             self.flash_manufacturer = "unknown"
             self.flash_type         = "unknown"
             self.flash_jennicid     = 0xFF
+
+        print("manufacturer: %s, type: %s, jennicid = 0x%x" % (self.flash_manufacturer,
+             self.flash_type, self.flash_jennicid))
 
     def crc(self, arr, len):
         """ calculates the crc
@@ -90,6 +102,9 @@ class JennicProtocol:
         for i in range(0,len):
             crc ^= arr[i]
         return crc
+
+    def set_baudrate(self, bd):
+        self.baudrate = bd
 
     def set_mac(self, s):
         self.mac = []
@@ -134,8 +149,17 @@ class JennicProtocol:
     def read_mac(self):
         return self.read_flash(self.mac_region[0], len(self.mac_region))
 
+    def read_mac_jn516x(self):
+        return self.read_ram(self.mac_region_jn516x[0], 8)
+
+    def read_cust_mac_jn516x(self):
+        return self.read_ram(self.cust_mac_region_jn516x[0], 8)
+
     def read_license(self):
         return self.read_flash(self.lic_region[0], len(self.lic_region))
+
+    def write_baudrate(self):
+        return self.talk(0x27, 0x28, data=chr(int(1000000/self.baudrate)));
 
     def write_license(self):
         self.write_flash(self.lic_region[0], self.lic)
@@ -143,23 +167,23 @@ class JennicProtocol:
     def write_mac(self):
         self.write_flash(self.mac_region[0], self.mac)
 
-    def write_flash(self, addr, list):
-        status = self.talk( 0x09, 0x0A, addr, data=list)
+    def write_flash(self, addr, clist):
+        status = self.talk( 0x09, 0x0A, addr, data=clist)
 
         if status[0] != 0:
             raise Exception("writing failed for addr %i status=%i len=%i"%(addr, status[0], len(status)))
 
-    def read_flash(self, addr, len):
+    def read_flash(self, addr, dlen):
         """ reads len bytes starting at address addr from
         flash memory.
         """
-        return self.talk( 0x0B, 0x0C, addr, len )[1:] # strip command status
+        return self.talk( 0x0B, 0x0C, addr, dlen )[1:] # strip command status
 
-    def read_ram(self, addr, len):
+    def read_ram(self, addr, dlen):
         """ reads len bytes starting at address addr from
         ram.
         """
-        return self.talk( 0x1F, 0x20, addr, len )[1:] # strip command status
+        return self.talk( 0x1F, 0x20, addr, dlen )[1:] # strip command status
 
     def finish(self):
         pass
