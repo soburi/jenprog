@@ -1,15 +1,36 @@
+''''
+ftdi wrapper 
+==================
+
+requrirements:
+-------------------
+* libftdi
+* swig
+* python2.6+
+
+
+building
+----------------
+1. scons
+2. sudo scons install
+
+''''
+
 import sys
 import os
 
 env = Environment()
 env.ParseConfig('pkg-config --libs --cflags libftdi python-%d.%d'%(sys.version_info[0], sys.version_info[1]))
 
+print(sys.version_info)
+
 PYPLATPATH = filter(lambda x: "plat" in x, sys.path)[0]
 
-lib = env.SharedLibrary( target='_ftdi', source='ftdi.i'.split(),
-                     CPPPATH=['.', '$CPPPATH'],
-                     SWIGFLAGS='-python -I/usr/include',
-                     SHLIBPREFIX='',
-                    )
+lib = env.SharedLibrary( target='_ftdi.so', source='ftdi.i'.split(),
+                    CPPPATH=['.', '$CPPPATH'],
+                    SWIGFLAGS=['-I/usr/include','-python'],
+                    SHLIBPREFIX='',
+                   )
 
 env.Alias('install', env.Install(PYPLATPATH, [lib, 'ftdi.py']))
+
