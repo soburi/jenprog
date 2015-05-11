@@ -84,8 +84,7 @@ class FtdiBootloader(JennicProtocol):
         #crap = cArray(1024)
         #self.f.read_data(crap, 1024)
 
-        #self.enterprogrammingmode()
-        self.enter_programmingmode_cbus()
+        self.enterprogrammingmode()
         self.doreset = 1
 
         # clear crap
@@ -104,27 +103,12 @@ class FtdiBootloader(JennicProtocol):
         JennicProtocol.__init__(self)
 
     def enterprogrammingmode(self):
-        """ uses bitbang mode to set DSR,DTR lines which are connected to the
-        reset and programming pin on the jennic board.
-        See http://www.ftdichip.com/Documents/AppNotes/AN232B-01_BitBang.pdf
+        """ uses bitbang mode to set CBUS3, CBUS2 which are connected to the
+        reset and programming pin on the  reference design JN-RD-6021.
 
-        DTR is connected to SPIMISO (bit 4)
-        DSR is connected to RESET   (bit 5)
+        CBUS3 is connected to SPIMISO
+        CBUS2 is connected to RESET
         """
-        def write(b):
-            msg = cArray(1); msg[0]=b;
-            self.f.write_data(msg, 1)
-
-        self.f.set_bitmode(self.SPIMISO|self.RESET, BITMODE_BITBANG)
-        write(0x00)
-        sleep(.2)
-        self.f.disable_bitbang()
-        self.f.set_bitmode(self.SPIMISO, BITMODE_BITBANG)
-        write(0x00)
-        sleep(.2)
-        self.f.disable_bitbang()
-
-    def enter_programmingmode_cbus(self):
         self.f.set_bitmode(0xF3, BITMODE_CBUS);
         sleep(.2)
         self.f.set_bitmode(0xF7, BITMODE_CBUS);
@@ -228,14 +212,11 @@ class FtdiBootloader(JennicProtocol):
         Switch to bitbang and toggle reset line.
         """
         if self.doreset:
-            def write(b):
-                msg = cArray(1); msg[0]=b
-                self.f.write_data(msg, 1)
-
-            RESET, NONE = 1<<5, 0x00
-            self.f.set_bitmode(RESET, BITMODE_RESET)
-            write(0x00)
-            sleep(.1)
+            self.f.set_bitmode(0xFB, BITMODE_CBUS);
+            sleep(.2)
+            self.f.set_bitmode(0xFF, BITMODE_CBUS);
+            sleep(.2)
             self.f.disable_bitbang()
+
         self.f.usb_close()
 
