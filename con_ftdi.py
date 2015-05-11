@@ -84,7 +84,8 @@ class FtdiBootloader(JennicProtocol):
         crap = cArray(1024)
         self.f.read_data(crap, 1024)
 
-        self.enterprogrammingmode()
+        #self.enterprogrammingmode()
+        self.enter_programmingmode_cbus()
         self.doreset = 1
 
         # clear crap
@@ -120,6 +121,15 @@ class FtdiBootloader(JennicProtocol):
         self.f.disable_bitbang()
         self.f.enable_bitbang(self.SPIMISO)
         write(0x00)
+        sleep(.2)
+        self.f.disable_bitbang()
+
+    def enter_programmingmode_cbus(self):
+        self.f.set_bitmode(0xF3, BITMODE_CBUS);
+        sleep(.2)
+        self.f.set_bitmode(0xF7, BITMODE_CBUS);
+        sleep(.2)
+        self.f.set_bitmode(0xFF, BITMODE_CBUS);
         sleep(.2)
         self.f.disable_bitbang()
 
