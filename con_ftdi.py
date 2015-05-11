@@ -34,7 +34,7 @@
 from ftdi import *
 from time import sleep
 from flashutils import JennicProtocol
-import sys
+import logging
 
 class Closure:
     def __init__(self, arg, func):
@@ -187,9 +187,7 @@ class FtdiBootloader(JennicProtocol):
         for i in range(0,msg_len):
             str += "0x%x "%msg[i]
 
-        if self.isverbose:
-            sys.stderr.write(str)
-            sys.stderr.write("\n")
+        logging.debug(str)
 
         # construct answer storage
         if ans_type != None:

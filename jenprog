@@ -36,6 +36,7 @@ from optparse import *
 from time import time
 from sys import stdout, stderr
 from os import SEEK_END, SEEK_SET
+import logging
 
 conns  = ('serial', 'ipv6', 'ftdi')
 parser = OptionParser()
@@ -47,7 +48,9 @@ parser.add_option('-m', '--mac', dest='mac',
                   help='reset the mac addr')
 parser.add_option('-k', '--key', dest='key',
                   help='reset the license key')
-parser.add_option('-v', '--verbose', action='store_true', dest='verbose',
+parser.add_option('--quiet', action='store_const', const=logging.WARNING, dest='loglevel',
+                  help='print only accidental messages')
+parser.add_option('--verbose', action='store_const', const=logging.DEBUG, dest='loglevel',
                   help='print send and received packets')
 parser.add_option('-y', '--verify', action='store_true', dest='verify',
                   help='also verify after writing')
@@ -65,6 +68,13 @@ parser.add_option('--spimiso-pin', type='int', help='pin number of spimiso line 
 
 (options, args) = parser.parse_args()
 
+if options.loglevel != None:
+    loglevel=options.loglevel
+else:
+    loglevel=logging.INFO
+
+logging.basicConfig(format='%(message)s', stream=stderr, level=loglevel)
+
 if options.conn=='serial':
     import con_serial
     bl = con_serial.SerialBootloader(options.target)
@@ -76,8 +86,6 @@ elif options.conn=='ftdi':
     bl = con_ftdi.FtdiBootloader(RESET=options.RESET, SPIMISO=options.SPIMISO)
 else:
     raise Exception('nahh')
-
-if options.verbose: bl.isverbose = True
 
 #
 # Select the actions:
@@ -106,11 +114,11 @@ elif len(args)!=1:
             stdout.write("%c"%byte)
 
         if addr>((options.addr+options.len)/10.*i):
-            stderr.write("%i%%.."%(i*10))
+            logging.info("%i%%.."%(i*10))
             i += 1
 
     kb,sec  = options.len/1000., (time()-start)
-    stderr.write("done - %0.2f kb/s\n"%(kb/sec))
+    logging.info("done - %0.2f kb/s"%(kb/sec))
 
 else:
     file = open(args[0], "rb")
@@ -149,16 +157,16 @@ else:
         data  = file.read(block)
 
         if addr>(size/10.*i):
-            stderr.write("%i%%.."%(i*10))
+            logging.info("%i%%.."%(i*10))
             i += 1
 
     kb,sec  = size/1000., (time()-start)
-    stderr.write("done - %0.2f kb/s "%(kb/sec))
+    logging.info("done - %0.2f kb/s "%(kb/sec))
 
-    #stderr.write("- writing mac address and key..")
+    #logging.info("- writing mac address and key..")
     #bl.write_mac()
     #bl.write_license()
-    #stderr.write("done\n")
+    #logging.info("done")
 
     if options.verify:
         raise Exception("not implemented")

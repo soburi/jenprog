@@ -31,6 +31,7 @@
 # Author(s): Philipp Scholl <scholl@teco.edu>
 
 import sys
+import logging
 
 class JennicProtocol:
     def __init__(self):
@@ -39,7 +40,6 @@ class JennicProtocol:
         self.cust_mac_region_jn516x  = list(range(0x01001580, 0x01001588))
         self.lic_region    = list(range(0x00000038, 0x00000048))
         self.mac, self.lic = None, None
-        self.isverbose     = True
         self.preferedblocksize = None
         self.baudrate = 38400
         #self.write_baudrate()
@@ -48,22 +48,22 @@ class JennicProtocol:
     def select_flash(self):
         self.identify_flash()
         if not self.flash_jennicid in (0x00, 0x01, 0x02, 0x03, 0x08):
-            print("unsupported flash type")
+            logging.error("unsupported flash type")
             sys.exit(1)
         status = self.talk(0x2C, 0x2D, data = [self.flash_jennicid])[0]
         if not status == 0:
-            print(("could not select detected flash type was: %d"%status))
+            logging.error("could not select detected flash type was: %d"%status)
             sys.exit(1)
 
     def identify_flash(self):
-        print("identify flash")
+        logging.info("identify flash")
         flash = self.talk(0x25, 0x26)
         self.flash_status       = flash[0]
         self.flash_manufacturer = flash[1]
         self.flash_type         = flash[2]
 
         if not self.flash_status == 0:
-            print(("flash status != 0 (%c)"%self.flash_status))
+            logging.info("flash status != 0 (%c)"%self.flash_status)
             sys.exit(0)
 
         if self.flash_manufacturer == 0x10 and self.flash_type == 0x10:
@@ -92,8 +92,8 @@ class JennicProtocol:
             self.flash_type         = "unknown"
             self.flash_jennicid     = 0xFF
 
-        print(("manufacturer: %s, type: %s, jennicid = 0x%x" % (self.flash_manufacturer,
-             self.flash_type, self.flash_jennicid)))
+        logging.info("manufacturer: %s, type: %s, jennicid = 0x%x" % (self.flash_manufacturer,
+             self.flash_type, self.flash_jennicid))
 
     def crc(self, arr, len):
         """ calculates the crc
@@ -114,7 +114,7 @@ class JennicProtocol:
                 self.mac.append( int( s[i:i+2], 16 ) )
 
         if not len(self.mac)==len(self.mac_region):
-            print(("mac must be %i byte long"%len(self.mac_region)))
+            logging.error("mac must be %i byte long"%len(self.mac_region))
             sys.exit(1)
 
     def set_license(self, s):
@@ -125,7 +125,7 @@ class JennicProtocol:
                 self.lic.append( int( s[i:i+2], 16 ) )
 
         if not len(self.lic)==len(self.lic_region):
-            print(("license must be %i byte long"%len(self.lic_region)))
+            logging.error("license must be %i byte long"%len(self.lic_region))
             sys.exit(1)
 
     def erase_flash(self):
@@ -143,7 +143,7 @@ class JennicProtocol:
         #    sys.exit(1)
 
         if not self.talk( 0x07, 0x08 )[0] == 0:
-            print("erasing did not work")
+            logging.error("erasing did not work")
             sys.exit(1)
 
     def read_mac(self):

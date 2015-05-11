@@ -36,6 +36,7 @@ from struct import *
 from time   import sleep
 from sys    import stdout, stderr
 from flashutils import JennicProtocol
+import logging
 
 class IPBootloader(JennicProtocol):
     def __init__(self, addr, port=2048):
@@ -87,13 +88,13 @@ class IPBootloader(JennicProtocol):
         msg += pack('!B', 0) #self.crc(msg, len))
 
 
-        if self.isverbose: print(("-> %i"%len(msg)))
+        logging.info("-> %i\n"%len(msg))
         self.sock.send(msg)
 
         if ans_type!=None:
             ans = self.sock.recv(1024)
-            if self.isverbose: print(("<- %i"%len(ans)))
-            return list(map(ord,ans[2:-1]))
+            logging.info("<- %i\n"%len(ans))
+            return map(ord,ans[2:-1])
         else:
             return None
 
