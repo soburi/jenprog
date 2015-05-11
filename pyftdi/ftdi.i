@@ -6,7 +6,7 @@
 
 int ftdi_debug(struct ftdi_context *c, int i)
 {
-  libusb_set_debug(i);
+  usb_set_debug(i);
   return 0;
 };
 
