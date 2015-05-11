@@ -34,7 +34,7 @@
 
 from optparse import *
 from time import time
-from sys import stdout, stderr
+from sys import stdout, stderr, exit
 from os import SEEK_END, SEEK_SET
 import logging
 
@@ -56,6 +56,10 @@ parser.add_option('-y', '--verify', action='store_true', dest='verify',
                   help='also verify after writing')
 parser.add_option('-s', '--show', dest='show', action='store_true',
                   help='show mac address and license key')
+parser.add_option('-d', '--dump', dest='dump', action='store_true',
+                  help='dump flash memory to stdout')
+parser.add_option('-p', '--program', dest='program', type='string', metavar='FILE',
+                  help='write program to flash memory')
 parser.add_option('-e', '--erase', dest='erase', action='store_true',
                   help='erasing the flash after reading mac and license key')
 parser.add_option('-c', '--connection', type='choice', dest='conn', default='serial', choices=conns,
@@ -107,7 +111,7 @@ elif options.mac or options.key:
         bl.set_license(options.key)
         bl.write_license()
 
-elif len(args)!=1:
+elif options.dump:
     block,i,start = bl.preferedblocksize or 0xf0,0,time()
     for addr in range(options.addr, options.addr+options.len, block):
         for byte in bl.read_flash(addr, block):
@@ -120,8 +124,8 @@ elif len(args)!=1:
     kb,sec  = options.len/1000., (time()-start)
     logging.info("done - %0.2f kb/s"%(kb/sec))
 
-else:
-    file = open(args[0], "rb")
+elif options.program:
+    file = open(options.program, "rb")
 
     # read the file size
     file.seek(0,SEEK_END)
@@ -170,6 +174,11 @@ else:
 
     if options.verify:
         raise Exception("not implemented")
+
+else:
+    print(( parser.format_help() ))
+    exit(0)
+
 
 # this restarts the module on some programmers
 bl.finish()
