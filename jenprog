@@ -65,10 +65,12 @@ parser.add_option('-e', '--erase', dest='erase', action='store_true',
 parser.add_option('-c', '--connection', type='choice', dest='conn', default='ftdi', choices=conns,
                   help='connection implementation ('+",".join(conns)+') [default: %default]')
 parser.add_option('-t', '--target', type='string', help='target for connection', dest='target')
-parser.add_option('--reset-pin', type='int', help='pin number of reset line for ftdi-type connections (default=5)',
-                  default=5, dest='RESET')
-parser.add_option('--spimiso-pin', type='int', help='pin number of spimiso line for ftdi-type connections (default=4)',
-                  default=4, dest='SPIMISO')
+parser.add_option('-b', '--baudrate', type='int', help='UART baudrate (default=1000000)',
+                  default=1000000, dest='baudrate')
+parser.add_option('--vid', type='string', help='USB VendorID  [default: %default]',
+                  default='0x0403', dest='vid')
+parser.add_option('--pid', type='string', help='USB ProductID [default: %default]',
+                  default='0x6001', dest='pid')
 
 (options, args) = parser.parse_args()
 
@@ -96,7 +98,7 @@ elif options.conn=='ipv6':
     bl = con_ipv6.IPBootloader(options.target)
 elif options.conn=='ftdi':
     import con_ftdi
-    bl = con_ftdi.FtdiBootloader(RESET=options.RESET, SPIMISO=options.SPIMISO)
+    bl = con_ftdi.FtdiBootloader(vid=options.vid, pid=options.pid)
 else:
     raise Exception('nahh')
 
