@@ -18,7 +18,6 @@
 
 import sys
 import os
-import commands
 
 env = Environment()
 env.ParseConfig('pkg-config --libs --cflags libftdi python-%d.%d'%(sys.version_info[0], sys.version_info[1]))
@@ -27,13 +26,9 @@ print(sys.version_info)
 
 PYPLATPATH = filter(lambda x: "plat" in x, sys.path)[0]
 
-swig_flags = commands.getoutput('pkg-config --cflags libftdi').rstrip().split(' ')
-swig_flags.append('-I/usr/include')
-swig_flags.append('-python')
-
 lib = env.SharedLibrary( target='_ftdi.so', source='ftdi.i'.split(),
                     CPPPATH=['.', '$CPPPATH'],
-                    SWIGFLAGS=swig_flags,
+                    SWIGFLAGS=['-I/usr/include','-python'],
                     SHLIBPREFIX='',
                    )
 

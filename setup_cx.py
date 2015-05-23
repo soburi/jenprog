@@ -36,22 +36,42 @@ from distutils.core import Extension, Command
 from distutils.util import get_platform
 import os
 import sys
-import commands
+import subprocess
 
-class BuildExtFtdiCommand(Command):
-    description = "build ext custom"
-    user_options = []
-    def initialize_options(self):
-        self.cwd = None
-    def finalize_options(self):
-        self.cwd = os.getcwd();
-    def run(self):
-        os.system('scons -C pyftdi')
+dep_search_path = sys.path
+dep_search_path.append(os.getcwd() + '/pyftdi')
+dep_search_path.append(os.getcwd() + "/build/lib.%s-%s" % (get_platform(), sys.version[0:3]) )
 
+if os.name != 'nt':
+    cmdout = subprocess.check_output(['pkg-config', 'libftdi', '--cflags-only-I'])
+    cflags = cmdout.decode('utf-8').strip().split(' ')
+    if len(cflags) == 0:
+        cflags = ['-I/usr/local/include', '-I/usr/include']
 
-_ftdi_so_dir = "build/lib.%s-%s" % (get_platform(), sys.version[0:3])
+    cmdout = subprocess.check_output(['pkg-config', 'libftdi', '--libs-only-L'])
+    libdirs = cmdout.decode('utf-8').strip().replace('-L','').split(' ')
+    if len(libdirs) == 0:
+        libdirs = ['/usr/local/lib', '/usr/lib']
 
-sys.path.append( os.getcwd() + '/pyftdi')
+    cmdout = subprocess.check_output(['pkg-config', 'libftdi', '--libs-only-l'])
+    libs = cmdout.decode('utf-8').strip().replace('-l','').split(' ')
+
+else:
+    cflags = []
+    libdirs= []
+    if 'LIBFTDI_INCDIR' in os.environ:
+        cflags.append('-I' + os.environ['LIBFTDI_INCDIR'])
+    if 'LIBUSB_INCDIR' in os.environ:
+        cflags.append('-I' + os.environ['LIBUSB_INCDIR'])
+    if 'LIBFTDI_LIBDIR' in os.environ:
+        libdirs.append(os.environ['LIBFTDI_LIBDIR'])
+    if 'LIBUSB_LIBDIR' in os.environ:
+        libdirs.append(os.environ['LIBUSB_LIBDIR'])
+
+    libs = ['ftdi', 'libusb0']
+
+incdirs = list([x.replace('-I','') for x in cflags])
+incdirs.append('pyftdi')
 
 setup(name='jenprog',
       version='1.1',
@@ -60,8 +80,16 @@ setup(name='jenprog',
       url='http://www.teco.edu/~scholl/ba-toolchain/jenprog-1.1.tar.gz',
       py_modules=['con_ftdi', 'con_serial', 'con_ipv6', 'flashutils'],
       scripts=['jenprog'],
-      cmdclass={'build_ext': BuildExtFtdiCommand},
-      ext_modules=[Extension('_ftdi', ['pyftdi/ftdi.i'], include_dirs=['./pyftdi'])],
+      ext_modules=[Extension('_ftdi', ['pyftdi/ftdi.i'],
+                             swig_opts=cflags,
+                             include_dirs=incdirs,
+                             library_dirs=libdirs,
+                             libraries=libs,
+                            )],
       executables = [Executable("jenprog")],
-      options = { "build_exe": { 'include_files' : ['pyftdi/_ftdi.so'], 'zip_includes':[('pyftdi/ftdi.py', 'ftdi.py')] } },
+      options = { "build_exe":
+                  {
+                    "bin_path_includes": dep_search_path
+                  }
+                },
       requires=('pyserial'))
