@@ -34,10 +34,10 @@ import sys
 
 class JennicProtocol:
     def __init__(self):
-        self.mac_region    = range(0x00000030, 0x00000038)
-        self.mac_region_jn516x    = range(0x01001570, 0x01001578)
-        self.cust_mac_region_jn516x  = range(0x01001580, 0x01001588)
-        self.lic_region    = range(0x00000038, 0x00000048)
+        self.mac_region    = list(range(0x00000030, 0x00000038))
+        self.mac_region_jn516x    = list(range(0x01001570, 0x01001578))
+        self.cust_mac_region_jn516x  = list(range(0x01001580, 0x01001588))
+        self.lic_region    = list(range(0x00000038, 0x00000048))
         self.mac, self.lic = None, None
         self.isverbose     = True
         self.preferedblocksize = None
@@ -52,7 +52,7 @@ class JennicProtocol:
             sys.exit(1)
         status = self.talk(0x2C, 0x2D, data = [self.flash_jennicid])[0]
         if not status == 0:
-            print("could not select detected flash type was: %d"%status)
+            print(("could not select detected flash type was: %d"%status))
             sys.exit(1)
 
     def identify_flash(self):
@@ -63,7 +63,7 @@ class JennicProtocol:
         self.flash_type         = flash[2]
 
         if not self.flash_status == 0:
-            print("flash status != 0 (%c)"%self.flash_status)
+            print(("flash status != 0 (%c)"%self.flash_status))
             sys.exit(0)
 
         if self.flash_manufacturer == 0x10 and self.flash_type == 0x10:
@@ -92,8 +92,8 @@ class JennicProtocol:
             self.flash_type         = "unknown"
             self.flash_jennicid     = 0xFF
 
-        print("manufacturer: %s, type: %s, jennicid = 0x%x" % (self.flash_manufacturer,
-             self.flash_type, self.flash_jennicid))
+        print(("manufacturer: %s, type: %s, jennicid = 0x%x" % (self.flash_manufacturer,
+             self.flash_type, self.flash_jennicid)))
 
     def crc(self, arr, len):
         """ calculates the crc
@@ -114,7 +114,7 @@ class JennicProtocol:
                 self.mac.append( int( s[i:i+2], 16 ) )
 
         if not len(self.mac)==len(self.mac_region):
-            print("mac must be %i byte long"%len(self.mac_region))
+            print(("mac must be %i byte long"%len(self.mac_region)))
             sys.exit(1)
 
     def set_license(self, s):
@@ -125,7 +125,7 @@ class JennicProtocol:
                 self.lic.append( int( s[i:i+2], 16 ) )
 
         if not len(self.lic)==len(self.lic_region):
-            print("license must be %i byte long"%len(self.lic_region))
+            print(("license must be %i byte long"%len(self.lic_region)))
             sys.exit(1)
 
     def erase_flash(self):

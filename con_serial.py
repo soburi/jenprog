@@ -95,7 +95,7 @@ class SerialBootloader(JennicProtocol):
                 msg += data
             else:
                 msg += pack('<%is'%len(data), "".join(map(chr,data)))
-        msg += pack('<B', self.crc(map(ord,msg), len(msg)))
+        msg += pack('<B', self.crc(list(map(ord,msg)), len(msg)))
 
         if anstype == None:
             return []
@@ -112,7 +112,7 @@ class SerialBootloader(JennicProtocol):
             n,ans = ord(self.ser.read(1)), ""
             while len(ans)<n:
                 ans += self.ser.read(n)
-        return map(ord,ans[1:-1])
+        return list(map(ord,ans[1:-1]))
 
     def finish(self):
         """ starts the execution by resetting the jennic modules. """
