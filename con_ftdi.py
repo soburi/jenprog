@@ -80,20 +80,20 @@ class FtdiBootloader(JennicProtocol):
         # clear crap
         self.f.usb_reset()
         self.f.usb_purge_buffers()
-        self.f.usb_purge_buffers()
-        crap = cArray(1024)
-        self.f.read_data(crap, 1024)
+        #self.f.usb_purge_buffers()
+        #crap = cArray(1024)
+        #self.f.read_data(crap, 1024)
 
         #self.enterprogrammingmode()
         self.enter_programmingmode_cbus()
         self.doreset = 1
 
         # clear crap
-        self.f.usb_reset()
-        self.f.usb_purge_buffers()
-        self.f.usb_purge_buffers()
-        crap = cArray(1024)
-        self.f.read_data(crap, 1024)
+        #self.f.usb_reset()
+        #self.f.usb_purge_buffers()
+        #self.f.usb_purge_buffers()
+        #crap = cArray(1024)
+        #self.f.read_data(crap, 1024)
 
         self.f.set_baudrate(38400)
         self.f.set_line_property(NONE, STOP_BIT_1, BITS_8)
