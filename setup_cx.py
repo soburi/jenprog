@@ -42,7 +42,7 @@ dep_search_path = sys.path
 dep_search_path.append(os.getcwd() + '/pyftdi')
 dep_search_path.append(os.getcwd() + "/build/lib.%s-%s" % (get_platform(), sys.version[0:3]) )
 
-if os.name != 'nt':
+if not 'LIBFTDI_INCDIR' in os.environ:
     cmdout = subprocess.check_output(['pkg-config', 'libftdi', '--cflags-only-I'])
     cflags = cmdout.decode('utf-8').strip().split(' ')
     if len(cflags) == 0:
@@ -61,14 +61,14 @@ else:
     libdirs= []
     if 'LIBFTDI_INCDIR' in os.environ:
         cflags.append('-I' + os.environ['LIBFTDI_INCDIR'])
-    if 'LIBUSB_INCDIR' in os.environ:
-        cflags.append('-I' + os.environ['LIBUSB_INCDIR'])
     if 'LIBFTDI_LIBDIR' in os.environ:
         libdirs.append(os.environ['LIBFTDI_LIBDIR'])
-    if 'LIBUSB_LIBDIR' in os.environ:
-        libdirs.append(os.environ['LIBUSB_LIBDIR'])
+    if 'LIBFTDI_BINDIR' in os.environ:
+        dep_search_path.append(os.environ['LIBFTDI_BINDIR'])
+    if 'LIBFTD2XX_BINDIR' in os.environ:
+        dep_search_path.append(os.environ['LIBFTD2XX_BINDIR'])
 
-    libs = ['ftdi', 'libusb0']
+    libs = ['ftdi']
 
 incdirs = list([x.replace('-I','') for x in cflags])
 incdirs.append('pyftdi')
