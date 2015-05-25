@@ -115,11 +115,11 @@ class FtdiBootloader(JennicProtocol):
             msg = cArray(1); msg[0]=b;
             self.f.write_data(msg, 1)
 
-        self.f.enable_bitbang(self.SPIMISO|self.RESET)
+        self.f.set_bitmode(self.SPIMISO|self.RESET, BITMODE_BITBANG)
         write(0x00)
         sleep(.2)
         self.f.disable_bitbang()
-        self.f.enable_bitbang(self.SPIMISO)
+        self.f.set_bitmode(self.SPIMISO, BITMODE_BITBANG)
         write(0x00)
         sleep(.2)
         self.f.disable_bitbang()
@@ -235,7 +235,7 @@ class FtdiBootloader(JennicProtocol):
                 self.f.write_data(msg, 1)
 
             RESET, NONE = 1<<5, 0x00
-            self.f.enable_bitbang(RESET)
+            self.f.set_bitmode(RESET, BITMODE_RESET)
             write(0x00)
             sleep(.1)
             self.f.disable_bitbang()
