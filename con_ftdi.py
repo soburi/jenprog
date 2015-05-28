@@ -133,7 +133,7 @@ class FtdiBootloader(JennicProtocol):
         sleep(.2)
         self.f.disable_bitbang()
 
-    def talk(self, type, ans_type, addr=None, mlen=None, data=None):
+    def talk(self, msg_type, ans_type, addr=None, mlen=None, data=None):
         """ executes one speak-reply cycle
 
         type     msg type prefix
@@ -158,7 +158,7 @@ class FtdiBootloader(JennicProtocol):
         # pack optional args in
         msg    = cArray(msg_len)
         msg[0] = msg_len-1
-        msg[1] = type
+        msg[1] = msg_type
         i      = 2
 
         if addr != None:
