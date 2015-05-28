@@ -100,6 +100,9 @@ class FtdiBootloader(JennicProtocol):
         self.f.setflowctrl(SIO_RTS_CTS_HS)
         self.f.setrts(0)
 
+        self.talk(0x27, 0x28, data=[1])
+        self.f.set_baudrate(1000000)
+
         JennicProtocol.__init__(self)
 
     def enterprogrammingmode(self):
