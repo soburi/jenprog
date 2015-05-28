@@ -120,6 +120,11 @@ else:
     size = file.tell()
     file.seek(0,SEEK_SET)
 
+    # not need to tranfser
+    flashtype = file.read(1)
+    ramsize   = file.read(1)
+    chiptype  = file.read(2)
+
     # start reading the file, 0x80 seems to be the only blocksize
     # working for the jennic bootloader with certain flashtypes
     block,i,start = bl.preferedblocksize or 0x80,0,time()
