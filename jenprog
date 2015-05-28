@@ -62,7 +62,7 @@ parser.add_option('-p', '--program', dest='program', type='string', metavar='FIL
                   help='write program to flash memory')
 parser.add_option('-e', '--erase', dest='erase', action='store_true',
                   help='erasing the flash after reading mac and license key')
-parser.add_option('-c', '--connection', type='choice', dest='conn', default='serial', choices=conns,
+parser.add_option('-c', '--connection', type='choice', dest='conn', default='ftdi', choices=conns,
                   help='connection implementation ('+",".join(conns)+') [default: %default]')
 parser.add_option('-t', '--target', type='string', help='target for connection', dest='target')
 parser.add_option('--reset-pin', type='int', help='pin number of reset line for ftdi-type connections (default=5)',
