@@ -132,10 +132,22 @@ elif options.program:
     size = file.tell()
     file.seek(0,SEEK_SET)
 
-    # not need to tranfser
-    flashtype = file.read(1)
-    ramsize   = file.read(1)
-    chiptype  = file.read(2)
+    MAGIC = bytes([0x12, 0x34, 0x56, 0x78, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
+
+    header = binfile.read(16)
+    if MAGIC == header[0:12]:
+        is_jn516x_format = False
+    elif MAGIC == header[4:16]:
+        is_jn516x_format = True
+    else:
+        raise Exception("unsupported binary format.")
+
+    binfile.seek(0,SEEK_SET)
+
+    if is_jn516x_format:
+        flashtype = binfile.read(1)
+        ramsize   = binfile.read(1)
+        chiptype  = binfile.read(2)
 
     # start reading the file, 0x80 seems to be the only blocksize
     # working for the jennic bootloader with certain flashtypes
