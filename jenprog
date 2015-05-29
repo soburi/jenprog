@@ -72,6 +72,15 @@ parser.add_option('--spimiso-pin', type='int', help='pin number of spimiso line 
 
 (options, args) = parser.parse_args()
 
+if not options.show and \
+   not options.erase and \
+   not options.mac and \
+   not options.key and \
+   not options.dump and \
+   not options.program:
+    print(( parser.format_help() ))
+    exit(0)
+
 if options.loglevel != None:
     loglevel=options.loglevel
 else:
@@ -103,13 +112,13 @@ if options.show or options.erase:
     stdout.write("\n")
     if options.erase: bl.erase_flash()
 
-elif options.mac or options.key:
-    if options.mac:
-        bl.set_mac(options.mac)
-        bl.write_mac()
-    if options.key:
-        bl.set_license(options.key)
-        bl.write_license()
+elif options.mac:
+    bl.set_mac(options.mac)
+    bl.write_mac()
+
+elif options.key:
+    bl.set_license(options.key)
+    bl.write_license()
 
 elif options.dump:
     block,i,start = bl.preferedblocksize or 0xf0,0,time()
@@ -186,10 +195,6 @@ elif options.program:
 
     if options.verify:
         raise Exception("not implemented")
-
-else:
-    print(( parser.format_help() ))
-    exit(0)
 
 
 # this restarts the module on some programmers
