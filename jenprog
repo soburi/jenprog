@@ -125,12 +125,12 @@ elif options.dump:
     logging.info("done - %0.2f kb/s"%(kb/sec))
 
 elif options.program:
-    file = open(options.program, "rb")
+    binfile = open(options.program, "rb")
 
-    # read the file size
-    file.seek(0,SEEK_END)
-    size = file.tell()
-    file.seek(0,SEEK_SET)
+    # read the binfile size
+    binfile.seek(0,SEEK_END)
+    size = binfile.tell()
+    binfile.seek(0,SEEK_SET)
 
     MAGIC = bytes([0x12, 0x34, 0x56, 0x78, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
 
@@ -152,7 +152,7 @@ elif options.program:
     # start reading the file, 0x80 seems to be the only blocksize
     # working for the jennic bootloader with certain flashtypes
     block,i,start = bl.preferedblocksize or 0x80,0,time()
-    data = file.read(block)
+    data = binfile.read(block)
     addr = 0x00000000
 
     # erase_flash gets the mac and license key prior to doing
@@ -170,7 +170,7 @@ elif options.program:
         else:
             bl.write_flash(addr, data)
         addr += len(data)
-        data  = file.read(block)
+        data  = binfile.read(block)
 
         if addr>(size/10.*i):
             logging.info("%i%%.."%(i*10))
