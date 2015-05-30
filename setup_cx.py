@@ -45,11 +45,15 @@ dep_search_path.append(os.getcwd() + "/build/lib.%s-%s" % (get_platform(), sys.v
 if not 'LIBFTDI_INCDIR' in os.environ:
     cmdout = subprocess.check_output(['pkg-config', 'libftdi', '--cflags-only-I'])
     cflags = cmdout.decode('utf-8').strip().split(' ')
+    if '' in cflags:
+        cflags.remove('')
     if len(cflags) == 0:
         cflags = ['-I/usr/local/include', '-I/usr/include']
 
     cmdout = subprocess.check_output(['pkg-config', 'libftdi', '--libs-only-L'])
     libdirs = cmdout.decode('utf-8').strip().replace('-L','').split(' ')
+    if '' in libdirs:
+        libdirs.remove('')
     if len(libdirs) == 0:
         libdirs = ['/usr/local/lib', '/usr/lib']
 
