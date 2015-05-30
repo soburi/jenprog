@@ -62,12 +62,12 @@ class Ftdi:
 class FtdiBootloader(JennicProtocol):
     # use bitbang mode to jump into programming mode, see
     # enterprogrammingmode
-    def __init__(self, vid='0x0403', pid='0x6001'):
+    def __init__(self, vid='0x0403', pid='0x6001', device=None):
         self.f = Ftdi()
         self.NONE = 0x00
         self.VID, self.PID = int(vid, 16), int(pid, 16)
 
-        self.f.usb_open(self.VID, self.PID)
+        self.f.usb_open_desc(self.VID, self.PID, None, device)
 
         self.enterprogrammingmode()
         self.doreset = 1

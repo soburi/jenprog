@@ -98,7 +98,10 @@ elif options.conn=='ipv6':
     bl = con_ipv6.IPBootloader(options.target)
 elif options.conn=='ftdi':
     import con_ftdi
-    bl = con_ftdi.FtdiBootloader(vid=options.vid, pid=options.pid)
+    import usb_serno
+
+    usbserno = usb_serno.query_serialno(options.target)
+    bl = con_ftdi.FtdiBootloader(vid=options.vid, pid=options.pid, device=usbserno)
 else:
     raise Exception('nahh')
 
