@@ -77,28 +77,16 @@ class FtdiBootloader(JennicProtocol):
                 # FT2232 chips
                 self.f.usb_open(0x0403, 0x6010)
 
-        # clear crap
-        self.f.usb_reset()
-        self.f.usb_purge_buffers()
-        #self.f.usb_purge_buffers()
-        #crap = cArray(1024)
-        #self.f.read_data(crap, 1024)
-
         self.enterprogrammingmode()
         self.doreset = 1
-
-        # clear crap
-        #self.f.usb_reset()
-        #self.f.usb_purge_buffers()
-        #self.f.usb_purge_buffers()
-        #crap = cArray(1024)
-        #self.f.read_data(crap, 1024)
 
         self.f.set_baudrate(38400)
         self.f.set_line_property(NONE, STOP_BIT_1, BITS_8)
         self.f.setrts(1)
         self.f.setflowctrl(SIO_RTS_CTS_HS)
         self.f.setrts(0)
+
+        self.f.usb_purge_buffers()
 
         self.talk(0x27, 0x28, data=[1])
         self.f.set_baudrate(1000000)
@@ -113,12 +101,13 @@ class FtdiBootloader(JennicProtocol):
         CBUS2 is connected to RESET
         """
         self.f.set_bitmode(0xF3, BITMODE_CBUS);
-        sleep(.2)
+        sleep(.05)
         self.f.set_bitmode(0xF7, BITMODE_CBUS);
-        sleep(.2)
+        sleep(.05)
         self.f.set_bitmode(0xFF, BITMODE_CBUS);
-        sleep(.2)
+        sleep(.05)
         self.f.disable_bitbang()
+        sleep(.05)
 
     def talk(self, msg_type, ans_type, addr=None, mlen=None, data=None):
         """ executes one speak-reply cycle
@@ -216,9 +205,9 @@ class FtdiBootloader(JennicProtocol):
         """
         if self.doreset:
             self.f.set_bitmode(0xFB, BITMODE_CBUS);
-            sleep(.2)
+            sleep(.1)
             self.f.set_bitmode(0xFF, BITMODE_CBUS);
-            sleep(.2)
+            sleep(.1)
             self.f.disable_bitbang()
 
         self.f.usb_close()
