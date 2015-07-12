@@ -26,10 +26,16 @@ def query_serialno_windows(devname):
     for pnp in result:
         compatt = re.compile(r'.*\((COM\d+)\).*')
         matched = re.match(compatt, pnp.Caption)
+        if matched == None:
+            continue
+
         comstr = matched.group(1)
 
         serpatt = re.compile(r'^FTDIBUS\\VID_\d{4}\+PID_\d{4}\+(\w{8}).*')
         matched = re.match(serpatt, pnp.DeviceID)
+        if matched == None:
+            continue
+
         serialnum = matched.group(1)
 
         if comstr == devname:
