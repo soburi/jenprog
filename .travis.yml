@@ -1,0 +1,35 @@
+language: python
+python:
+- '3.6'
+
+env:
+  'global:':
+  - PATH=/home/travis/gopath/bin:$PATH
+  - GHREPO_NAME=$(basename ${TRAVIS_REPO_SLUG})
+  - LINUXX64_ARCHIVENAME=${GHREPO_NAME}_x86_64-pc-linux-gnu_${TRAVIS_TAG}
+  - WINDOWS_ARCHIVENAME=${GHREPO_NAME}_i686-mingw32_${TRAVIS_TAG}
+  - MACOSX_ARCHIVENAME=${GHREPO_NAME}_x86_64-apple-darwin_${TRAVIS_TAG}
+  - LINUXARM_ARCHIVENAME=${GHREPO_NAME}_arm-linux-gnueabihf_${TRAVIS_TAG}
+
+deploy:
+  provider: releases
+  api_key:
+    secure: m0V6TuHtVUCPLJekMc+AcCaMnt9lzWUmWyPiYmbGmbLded1k8FkhRKGEzOVTlUc4dQN6zbjSFXbqT+rVQQMfRwZ218gRW9JUTkdR8hXph/zpZS+CtKhwaEtUIKPriR9tgQk0OnLFKEBSoJi4Vu9r6X0teY7D1DtMCix/LaI0uAbFFDZk82Gho41cfPE2S3jobVIugW+L1d8M0KCxcI1X+lb/PHa9lps0wdl1wUimkkWfAeePDRa6ZSdHXWtWuuxXvK4wh/Z67aH9hdF1sBeOJjqhywSK4cshSIP8M/CewRGUL9PlaEFXI5FTZpzjsjPqdoGkdSx25pRfFb3C8a4O4h2UOKZA88V7pjR2/cU6t4hKzKP9u/99MBB6c+hvgzKYDAyQxYfLJkwgIE+fvd2X4sIzOt8XAZkIbKDbWvAOuGQuT0m+K4ihaC2qmlu4KSCX845wwKwFQw9v7Z2WA08VVykJsRNIzpmxHEwNeW4evIXWDCWpsk6n9EzPUUI9k5wiw3kKrsv6NjZ8y0jvt4GN02gGXGXRBxIcI6F4SJElR3lRMOjNBpWunamzsysBxqZ8RI8IluPAg59+vnI1d2hDWc92ge9vH09DhQ0DnOWnSJN9YCCFQLSLa6ChUvdRBxXdFofG8P8fldQBl8niN7CjMPE0LbBPp4sPrZnyGPdlTUo=
+  file:
+    - "${LINUXX64_ARCHIVENAME}.tar.bz2"
+    -  "${WINDOWS_ARCHIVENAME}.tar.bz2"
+    -   "${MACOSX_ARCHIVENAME}.tar.bz2"
+    - "${LINUXARM_ARCHIVENAME}.tar.bz2"
+  skip_cleanup: true
+  on:
+    tags: true
+
+install: 
+script:
+- echo ".git" >> ~/exclude.jenprog
+- echo "*.pdf" >> ~/exclude.jenprog
+- bash -c "cd  ${TRAVIS_BUILD_DIR} && tar cvfj ~/${LINUXX64_ARCHIVENAME}.tar.bz2 -X ~/exclude.jenprog ."
+- bash -c "cd  ${TRAVIS_BUILD_DIR} && tar cvfj  ~/${WINDOWS_ARCHIVENAME}.tar.bz2 -X ~/exclude.jenprog ."
+- bash -c "cd  ${TRAVIS_BUILD_DIR} && tar cvfj   ~/${MACOSX_ARCHIVENAME}.tar.bz2 -X ~/exclude.jenprog ."
+- bash -c "cd  ${TRAVIS_BUILD_DIR} && tar cvfj ~/${LINUXARM_ARCHIVENAME}.tar.bz2 -X ~/exclude.jenprog ."
+- bash -c "mv ~/*.tar.bz2 ."
