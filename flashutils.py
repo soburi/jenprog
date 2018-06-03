@@ -44,6 +44,14 @@ class JennicProtocol:
         self.baudrate = 38400
         #self.write_baudrate()
         self.select_flash()
+        self.identify_chip()
+
+    def identify_chip(self):
+        logging.info("identify chip")
+        chipid = self.talk(0x32, 0x33)
+        self.chipid_status = chipid[0]
+        self.chipid = chipid[1]
+        logging.info("chipid=%x"%chipid[1])
 
     def select_flash(self):
         self.identify_flash()
@@ -85,7 +93,7 @@ class JennicProtocol:
             self.flash_jennicid     = 0x03
         elif self.flash_manufacturer == 0xCC and self.flash_type == 0xEE:
             self.flash_manufacturer = "JN516x"
-            self.flash_type         = ""
+            self.flash_type         = "Internal"
             self.flash_jennicid     = 0x08
         else:
             self.flash_manufacturer = "unknown"
