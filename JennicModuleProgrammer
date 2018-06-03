@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+import os
+import imp
+import sys
+import logging
+from argparse import ArgumentParser
+
+base = os.path.dirname( os.path.abspath(__file__))
+
+parser = ArgumentParser()
+parser.add_argument('-s', '--serial', help='Target serialport', dest='serial')
+parser.add_argument('-V', '--verbosity', action='store_const', const=logging.DEBUG, dest='loglevel',
+                  help='print send and received packets')
+parser.add_argument('-I', '--initialbaud', type=int, help='Initial baudrate', metavar='BAUDRATE',
+                  default=38400, dest='initialbaud')
+parser.add_argument('-P', '--programbaud', type=int, help='Programming baudrate', metavar='BAUDRATE',
+                  default=1000000, dest='programbaud')
+parser.add_argument('-f', '--firmware', dest='firmware', metavar='FILE',
+                  help='write program to flash memory')
+parser.add_argument('-v', '--verify', action='store_true', dest='verify',
+                  help='Verify image (not implemented!)')
+parser.add_argument('-m', '--mac', dest='mac', metavar='MACADDRESS',
+                  help='Reset the mac addr')
+
+trimmed_args = []
+for arg in sys.argv:
+    if arg.startswith('-') and arg in trimmed_args:
+        continue
+    else:
+        trimmed_args.append(arg)
+
+head, *tail = trimmed_args
+options = parser.parse_args(tail)
+
+
+if not options.serial or \
+   (not options.firmware and not options.mac):
+    print(( parser.format_help() ))
+    exit(0)
+
+jenprog_args = [sys.argv[0]]
+
+if options.serial:
+    jenprog_args.append('-t')
+    jenprog_args.append(str(options.serial))
+if options.loglevel:
+    jenprog_args.append('-V')
+    jenprog_args.append(str(options.loglevel))
+#if options.initialbaud:
+#    jenprog_args.append('-i')
+#    jenprog_args.append(str(options.initialbaud))
+if options.programbaud:
+    jenprog_args.append('-b')
+    jenprog_args.append(str(options.programbaud))
+if options.firmware:
+    jenprog_args.append('-p')
+    jenprog_args.append(options.firmware)
+if options.verify:
+    jenprog_args.append('-y')
+    jenprog_args.append(str(options.verify))
+if options.mac:
+    jenprog_args.append('-m')
+    jenprog_args.append(str(options.mac))
+
+sys.argv = jenprog_args
+mod = imp.load_source('jenprog', os.path.join(base, 'jenprog') )
+
