@@ -9,8 +9,8 @@ base = os.path.dirname( os.path.abspath(__file__))
 
 parser = ArgumentParser()
 parser.add_argument('-s', '--serial', help='Target serialport', dest='serial')
-parser.add_argument('-V', '--verbosity', action='store_const', const=logging.DEBUG, dest='loglevel',
-                  help='print send and received packets')
+parser.add_argument('-V', '--verbosity', type=int, dest='verbose', metavar='VERBOSE', default=0,
+                  help='Verbosity level')
 parser.add_argument('-I', '--initialbaud', type=int, help='Initial baudrate', metavar='BAUDRATE',
                   default=38400, dest='initialbaud')
 parser.add_argument('-P', '--programbaud', type=int, help='Programming baudrate', metavar='BAUDRATE',
@@ -43,10 +43,12 @@ jenprog_args = [sys.argv[0]]
 if options.serial:
     jenprog_args.append('-t')
     jenprog_args.append(str(options.serial))
-if options.loglevel:
-    jenprog_args.append('-V')
-    jenprog_args.append(str(options.loglevel))
-#if options.initialbaud:
+if options.verbose:
+    nop = 0
+#    jenprog_args.append('-V')
+#    jenprog_args.append(str(options.verbose))
+if options.initialbaud:
+    nop = 0
 #    jenprog_args.append('-i')
 #    jenprog_args.append(str(options.initialbaud))
 if options.programbaud:
