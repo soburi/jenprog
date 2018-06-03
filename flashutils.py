@@ -41,8 +41,8 @@ class JennicProtocol:
         self.lic_region    = list(range(0x00000038, 0x00000048))
         self.mac, self.lic = None, None
         self.preferedblocksize = None
-        self.baudrate = 38400
-        #self.write_baudrate()
+
+    def start(self):
         self.select_flash()
         self.identify_chip()
 
@@ -111,9 +111,6 @@ class JennicProtocol:
             crc ^= arr[i]
         return crc
 
-    def set_baudrate(self, bd):
-        self.baudrate = bd
-
     def set_mac(self, s):
         self.mac = []
 
@@ -165,9 +162,6 @@ class JennicProtocol:
 
     def read_license(self):
         return self.read_flash(self.lic_region[0], len(self.lic_region))
-
-    def write_baudrate(self):
-        return self.talk(0x27, 0x28, data=chr(int(1000000/self.baudrate)));
 
     def write_license(self):
         self.write_flash(self.lic_region[0], self.lic)

@@ -47,6 +47,13 @@ class IPBootloader(JennicProtocol):
         self.preferedblocksize=0xff
         self.addr=0x00
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.finish()
+        return True
+
     def write_init(self, flash_image_size):
         self.talk( 0x2e, addr=flash_image_size )
         self.image_size = flash_image_size

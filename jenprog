@@ -90,115 +90,112 @@ else:
 
 logging.basicConfig(format='%(message)s', stream=stderr, level=loglevel)
 
-if options.conn=='serial':
-    import con_serial
-    bl = con_serial.SerialBootloader(options.target)
-elif options.conn=='ipv6':
-    import con_ipv6
-    bl = con_ipv6.IPBootloader(options.target)
-elif options.conn=='ftdi':
-    import con_ftdi
-    bl = con_ftdi.FtdiBootloader(options.vid, options.pid, options.target)
-else:
-    raise Exception('nahh')
-
-#
-# Select the actions:
-#
-if options.show or options.erase:
-    stdout.write("flash: %s %s\n"%(bl.flash_manufacturer, bl.flash_type))
-    stdout.write("mac: 0x")
-    for b in bl.read_mac(): stdout.write("%02x"%b)
-    stdout.write(" license: 0x")
-    for b in bl.read_license(): stdout.write("%02x"%b)
-    stdout.write("\n")
-    if options.erase: bl.erase_flash()
-
-elif options.mac:
-    bl.set_mac(options.mac)
-    bl.write_mac()
-
-elif options.key:
-    bl.set_license(options.key)
-    bl.write_license()
-
-elif options.dump:
-    block,i,start = bl.preferedblocksize or 0xf0,0,time()
-    for addr in range(options.addr, options.addr+options.len, block):
-        for byte in bl.read_flash(addr, block):
-            stdout.write("%c"%byte)
-
-        if addr>((options.addr+options.len)/10.*i):
-            logging.info("%i%%.."%(i*10))
-            i += 1
-
-    kb,sec  = options.len/1000., (time()-start)
-    logging.info("done - %0.2f kb/s"%(kb/sec))
-
-elif options.program:
-    binfile = open(options.program, "rb")
-
-    # read the binfile size
-    binfile.seek(0,SEEK_END)
-    size = binfile.tell()
-    binfile.seek(0,SEEK_SET)
-
-    MAGIC = bytes([0x12, 0x34, 0x56, 0x78, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
-
-    header = binfile.read(16)
-    if MAGIC == header[0:12]:
-        is_jn516x_format = False
-    elif MAGIC == header[4:16]:
-        is_jn516x_format = True
+def open_bootloader(options):
+    if options.conn=='serial':
+        import con_serial
+        return con_serial.SerialBootloader(options.target)
+    elif options.conn=='ipv6':
+        import con_ipv6
+        return con_ipv6.IPBootloader(options.target)
+    elif options.conn=='ftdi':
+        import con_ftdi
+        return con_ftdi.FtdiBootloader(options.vid, options.pid, options.target)
     else:
-        raise Exception("unsupported binary format.")
+        raise Exception('nahh')
 
-    binfile.seek(0,SEEK_SET)
+with open_bootloader(options) as bl:
+    #
+    # Select the actions:
+    #
+    if options.show or options.erase:
+        stdout.write("flash: %s %s\n"%(bl.flash_manufacturer, bl.flash_type))
+        stdout.write("mac: 0x")
+        for b in bl.read_mac(): stdout.write("%02x"%b)
+        stdout.write(" license: 0x")
+        for b in bl.read_license(): stdout.write("%02x"%b)
+        stdout.write("\n")
+        if options.erase: bl.erase_flash()
 
-    if is_jn516x_format:
-        flashtype = binfile.read(1)
-        ramsize   = binfile.read(1)
-        chiptype  = binfile.read(2)
+    elif options.mac:
+        bl.set_mac(options.mac)
+        bl.write_mac()
 
-    # start reading the file, 0x80 seems to be the only blocksize
-    # working for the jennic bootloader with certain flashtypes
-    block,i,start = bl.preferedblocksize or 0x80,0,time()
-    data = binfile.read(block)
-    addr = 0x00000000
+    elif options.key:
+        bl.set_license(options.key)
+        bl.write_license()
 
-    # erase_flash gets the mac and license key prior to doing
-    # its opertation.
-    bl.erase_flash()
+    elif options.dump:
+        block,i,start = bl.preferedblocksize or 0xf0,0,time()
+        for addr in range(options.addr, options.addr+options.len, block):
+            for byte in bl.read_flash(addr, block):
+                stdout.write("%c"%byte)
 
-    # issue a write_init command if the boot loader supports
-    # that.
-    if hasattr(bl, 'write_init'):
-        bl.write_init(size)
+            if addr>((options.addr+options.len)/10.*i):
+                logging.info("%i%%.."%(i*10))
+                i += 1
 
-    while len(data) != 0:
-        if hasattr(bl, 'write2_flash'):
-            bl.write2_flash(addr, data)
+        kb,sec  = options.len/1000., (time()-start)
+        logging.info("done - %0.2f kb/s"%(kb/sec))
+
+    elif options.program:
+        binfile = open(options.program, "rb")
+
+        # read the binfile size
+        binfile.seek(0,SEEK_END)
+        size = binfile.tell()
+        binfile.seek(0,SEEK_SET)
+
+        MAGIC = bytes([0x12, 0x34, 0x56, 0x78, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88])
+
+        header = binfile.read(16)
+        if MAGIC == header[0:12]:
+            is_jn516x_format = False
+        elif MAGIC == header[4:16]:
+            is_jn516x_format = True
         else:
-            bl.write_flash(addr, data)
-        addr += len(data)
-        data  = binfile.read(block)
+            raise Exception("unsupported binary format.")
 
-        if addr>(size/10.*i):
-            logging.info("%i%%.."%(i*10))
-            i += 1
+        binfile.seek(0,SEEK_SET)
 
-    kb,sec  = size/1000., (time()-start)
-    logging.info("done - %0.2f kb/s "%(kb/sec))
+        if is_jn516x_format:
+            flashtype = binfile.read(1)
+            ramsize   = binfile.read(1)
+            chiptype  = binfile.read(2)
 
-    #logging.info("- writing mac address and key..")
-    #bl.write_mac()
-    #bl.write_license()
-    #logging.info("done")
+        # start reading the file, 0x80 seems to be the only blocksize
+        # working for the jennic bootloader with certain flashtypes
+        block,i,start = bl.preferedblocksize or 0x80,0,time()
+        data = binfile.read(block)
+        addr = 0x00000000
 
-    #if options.verify:
-    #    raise Exception("not implemented")
+        # erase_flash gets the mac and license key prior to doing
+        # its opertation.
+        bl.erase_flash()
 
+        # issue a write_init command if the boot loader supports
+        # that.
+        if hasattr(bl, 'write_init'):
+            bl.write_init(size)
 
-# this restarts the module on some programmers
-bl.finish()
+        while len(data) != 0:
+            if hasattr(bl, 'write2_flash'):
+                bl.write2_flash(addr, data)
+            else:
+                bl.write_flash(addr, data)
+            addr += len(data)
+            data  = binfile.read(block)
 
+            if addr>(size/10.*i):
+                logging.info("%i%%.."%(i*10))
+                i += 1
+
+        kb,sec  = size/1000., (time()-start)
+        logging.info("done - %0.2f kb/s "%(kb/sec))
+
+        #logging.info("- writing mac address and key..")
+        #bl.write_mac()
+        #bl.write_license()
+        #logging.info("done")
+
+        #if options.verify:
+        #    raise Exception("not implemented")

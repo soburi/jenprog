@@ -74,7 +74,17 @@ class FtdiBootloader(JennicProtocol):
         self.f = Ftdi()
         self.VID, self.PID = int(vid, 16), int(pid, 16)
         self.SERIAL = usbutils.query_iserial(device)
+        JennicProtocol.__init__(self)
 
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.finish()
+        return True
+
+    def start(self):
         self.f.usb_open_desc(self.VID, self.PID, None, self.SERIAL)
 
         self.enterprogrammingmode()
@@ -90,8 +100,7 @@ class FtdiBootloader(JennicProtocol):
 
         self.talk(0x27, 0x28, data=[1])
         self.f.set_baudrate(1000000)
-
-        JennicProtocol.__init__(self)
+        super().start()
 
     def enterprogrammingmode(self):
         """ uses bitbang mode to set CBUS3, CBUS2 which are connected to the
