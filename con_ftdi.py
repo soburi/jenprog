@@ -70,9 +70,10 @@ class Ftdi:
 class FtdiBootloader(JennicProtocol):
     # use bitbang mode to jump into programming mode, see
     # enterprogrammingmode
-    def __init__(self, vid='0x0403', pid='0x6001', device=None):
+    def __init__(self, vid='0x0403', pid='0x6001', device=None, initbaud=38400, progbaud=1000000):
         self.f = Ftdi()
         self.VID, self.PID = int(vid, 16), int(pid, 16)
+        self.INITBAUD, self.PROGBAUD = int(initbaud), int(progbuad)
         self.SERIAL = usbutils.query_iserial(device)
         JennicProtocol.__init__(self)
 
@@ -90,7 +91,7 @@ class FtdiBootloader(JennicProtocol):
         self.enterprogrammingmode()
         self.doreset = 1
 
-        self.f.set_baudrate(38400)
+        self.f.set_baudrate(self.INITBAUD)
         self.f.set_line_property(ftdi1.BITS_8, ftdi1.STOP_BIT_1, ftdi1.NONE)
         self.f.setrts(1)
         self.f.setflowctrl(ftdi1.SIO_RTS_CTS_HS)
@@ -99,7 +100,7 @@ class FtdiBootloader(JennicProtocol):
         self.f.usb_purge_buffers()
 
         self.talk(0x27, 0x28, data=[1])
-        self.f.set_baudrate(1000000)
+        self.f.set_baudrate(self.PROGBAUD)
         super().start()
 
     def enterprogrammingmode(self):
