@@ -80,6 +80,13 @@ class SerialBootloader(JennicProtocol):
 
         JennicProtocol.__init__(self)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.finish()
+        return True
+
     def talk(self, type, anstype, addr=None, mlen=None, data=None):
         length = 3
 
