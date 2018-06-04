@@ -65,8 +65,10 @@ parser.add_option('-e', '--erase', dest='erase', action='store_true',
 parser.add_option('-c', '--connection', type='choice', dest='conn', default='ftdi', choices=conns,
                   help='connection implementation ('+",".join(conns)+') [default: %default]')
 parser.add_option('-t', '--target', type='string', help='target for connection', dest='target')
+parser.add_option('-B', '--initbaud', type='int', help='UART initialise baudrate (default=38400)',
+                  default=38400, dest='initbaud')
 parser.add_option('-b', '--baudrate', type='int', help='UART baudrate (default=1000000)',
-                  default=1000000, dest='baudrate')
+                  default=1000000, dest='progbaud')
 parser.add_option('--vid', type='string', help='USB VendorID  [default: %default]',
                   default='0x0403', dest='vid')
 parser.add_option('--pid', type='string', help='USB ProductID [default: %default]',
@@ -99,7 +101,7 @@ def open_bootloader(options):
         return con_ipv6.IPBootloader(options.target)
     elif options.conn=='ftdi':
         import con_ftdi
-        return con_ftdi.FtdiBootloader(options.vid, options.pid, options.target)
+        return con_ftdi.FtdiBootloader(options.vid, options.pid, options.target, options.initbaud, options.progbaud)
     else:
         raise Exception('nahh')
 
