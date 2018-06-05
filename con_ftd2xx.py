@@ -78,7 +78,7 @@ class Ftd2xxBootloader(JennicProtocol):
     # use bitbang mode to jump into programming mode, see
     # enterprogrammingmode
     def __init__(self, device=None, initbaud=38400, progbaud=1000000):
-        iserial = usbutils.query_iserial(device)
+        vid, pid, iserial = usbutils.query_usb_id(device)
 
         devserials= ftd2xx.listDevices();
 

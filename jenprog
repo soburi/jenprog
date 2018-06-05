@@ -69,10 +69,6 @@ parser.add_option('-B', '--initbaud', type='int', help='UART initialise baudrate
                   default=38400, dest='initbaud')
 parser.add_option('-b', '--baudrate', type='int', help='UART baudrate (default=1000000)',
                   default=1000000, dest='progbaud')
-parser.add_option('--vid', type='string', help='USB VendorID  [default: %default]',
-                  default='0x0403', dest='vid')
-parser.add_option('--pid', type='string', help='USB ProductID [default: %default]',
-                  default='0x6001', dest='pid')
 
 (options, args) = parser.parse_args()
 
@@ -101,7 +97,7 @@ def open_bootloader(options):
         return con_ipv6.IPBootloader(options.target)
     elif options.conn=='ftdi':
         import con_ftdi
-        return con_ftdi.FtdiBootloader(options.vid, options.pid, options.target, options.initbaud, options.progbaud)
+        return con_ftdi.FtdiBootloader(options.target, options.initbaud, options.progbaud)
     elif options.conn=='ftd2xx':
         import con_ftd2xx
         return con_ftd2xx.Ftd2xxBootloader(options.target, options.initbaud, options.progbaud)

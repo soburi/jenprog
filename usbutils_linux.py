@@ -8,15 +8,27 @@ def query_iserial(devname):
     result = os.readlink(devfile)
 
     if result[0] != '/':
-        serialinfo = os.path.join(os.path.dirname(devfile), result, '../../serial')
+        serial = os.path.join(os.path.dirname(devfile), result, '../../serial')
+        vendor = os.path.join(os.path.dirname(devfile), result, '../../idVendor')
+        product = os.path.join(os.path.dirname(devfile), result, '../../idProduct')
     else:
-        serialinfo = result
+        raise Exception(devname + 'Not Found')
 
-    f = open(serialinfo)
+    f = open(serial)
     if f != None:
-        iserial = f.read().strip()
+        iSerial = f.read().strip()
         f.close()
-        return iserial
+    f = open(vendor)
+    if f != None:
+        idVendor = f.read().strip()
+        f.close()
+    f = open(product)
+    if f != None:
+        idProduct = f.read().strip()
+        f.close()
+
+    if iSerial != None and idVendor != None and idProduct != None:
+        return [int(idVendor,16), int(idProduct, 16), iSerial]
 
     raise Exception(devname + 'Not Found')
 
