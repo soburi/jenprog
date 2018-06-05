@@ -73,7 +73,7 @@ class FtdiBootloader(JennicProtocol):
     def __init__(self, vid='0x0403', pid='0x6001', device=None, initbaud=38400, progbaud=1000000):
         self.f = Ftdi()
         self.VID, self.PID = int(vid, 16), int(pid, 16)
-        self.INITBAUD, self.PROGBAUD = int(initbaud), int(progbuad)
+        self.INITBAUD, self.PROGBAUD = int(initbaud), int(progbaud)
         self.SERIAL = usbutils.query_iserial(device)
         JennicProtocol.__init__(self)
 
