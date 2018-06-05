@@ -50,7 +50,7 @@ class Closure:
             val = ret
 
         if val < 0:
-            raise Exception("%s: %d"%(ftdi1.ftdi_get_error_string(self.arg), val))
+            raise Exception("%s: %d"%(ftdi1.get_error_string(self.arg), val))
         else:
             return ret
 
