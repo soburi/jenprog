@@ -38,7 +38,7 @@ from sys import stdout, stderr, exit
 from os import SEEK_END, SEEK_SET
 import logging
 
-conns  = ('serial', 'ipv6', 'ftdi')
+conns  = ('serial', 'ipv6', 'ftdi', 'ftd2xx')
 parser = OptionParser()
 parser.add_option('-a', '--address', dest='addr', type='int',
                   help='start reading at address', metavar='ADDR', default=0x00000000)
@@ -102,6 +102,9 @@ def open_bootloader(options):
     elif options.conn=='ftdi':
         import con_ftdi
         return con_ftdi.FtdiBootloader(options.vid, options.pid, options.target, options.initbaud, options.progbaud)
+    elif options.conn=='ftd2xx':
+        import con_ftd2xx
+        return con_ftd2xx.Ftd2xxBootloader(options.target, options.initbaud, options.progbaud)
     else:
         raise Exception('nahh')
 
