@@ -30,12 +30,11 @@ def query_iserial_windows(devname):
         matched = re.match(compatt, pnp.Caption)
         comstr = matched.group(1)
 
-        serpatt = re.compile(r'^FTDIBUS\\VID_\d{4}\+PID_\d{4}\+(\w{8}).*')
-        matched = re.match(serpatt, pnp.DeviceID)
-        iserial = matched.group(1)
-
-        if comstr == devname:
-            return iserial
+        if devname == comstr:
+            serpatt = re.compile(r'^FTDIBUS\\VID_\d{4}\+PID_\d{4}\+(\w*)A\\0000')
+            matched = re.match(serpatt, pnp.DeviceID)
+            if matched != None and devname == comstr:
+                return matched.group(1)
 
     raise Exception(devname + 'Not Found')
 
