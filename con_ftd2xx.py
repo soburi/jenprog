@@ -138,7 +138,7 @@ class Ftd2xxBootloader(JennicProtocol):
         self.f.setBitMode(0x00, 0x20) #ftd2xx.BITMODE_CBUS_BITBANG);
         sleep(.05)
 
-    def talk(self, msg_type, ans_type, addr=None, mlen=None, data=None):
+    def talk(self, msg_type, addr=None, mlen=None, data=None):
         """ executes one speak-reply cycle
 
         type     msg type prefix
@@ -149,6 +149,7 @@ class Ftd2xxBootloader(JennicProtocol):
 
         throws an exception if the answer type is not the anticipiated one
         """
+        ans_type = msg_type + 1
         msg_len = 3          # default len if no args are supplied
 
         if addr != None:

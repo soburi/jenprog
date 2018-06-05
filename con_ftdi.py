@@ -33,7 +33,7 @@
 
 import ftdi1
 from time import sleep
-from flashutils import JennicProtocol
+from flashutils import JennicProtocol, CHANGE_BAUD_RATE
 import logging
 import sys
 if sys.platform.startswith('linux'):
@@ -102,7 +102,7 @@ class FtdiBootloader(JennicProtocol):
 
         self.f.usb_purge_buffers()
 
-        self.talk(0x27, 0x28, data=[1])
+        self.talk(CHANGE_BAUD_RATE, data=[1])
         self.f.set_baudrate(self.PROGBAUD)
         super().start()
 
@@ -122,7 +122,7 @@ class FtdiBootloader(JennicProtocol):
         self.f.disable_bitbang()
         sleep(.05)
 
-    def talk(self, msg_type, ans_type, addr=None, mlen=None, data=None):
+    def talk(self, msg_type, addr=None, mlen=None, data=None):
         """ executes one speak-reply cycle
 
         type     msg type prefix
@@ -133,6 +133,7 @@ class FtdiBootloader(JennicProtocol):
 
         throws an exception if the answer type is not the anticipiated one
         """
+        ans_type = msg_type + 1
         msg_len = 3          # default len if no args are supplied
 
         if addr != None:
