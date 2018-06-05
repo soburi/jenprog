@@ -35,7 +35,11 @@ import ftd2xx
 from time import sleep
 from flashutils import JennicProtocol, CHANGE_BAUD_RATE
 import logging
-import usbutils
+import sys
+if sys.platform.startswith('linux'):
+    import usbutils_linux as usbutils
+elif sys.platform.startswith('win32'):
+    import usbutils_win32 as usbutils
 
 """
 class Closure:
