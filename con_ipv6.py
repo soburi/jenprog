@@ -52,7 +52,7 @@ class IPBootloader(JennicProtocol):
 
     def __exit__(self, type, value, traceback):
         self.finish()
-        return True
+        return False
 
     def write_init(self, flash_image_size):
         self.talk( 0x2e, addr=flash_image_size )
