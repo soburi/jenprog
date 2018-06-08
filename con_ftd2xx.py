@@ -97,7 +97,7 @@ class Ftd2xxBootloader(JennicProtocol):
 
     def __exit__(self, type, value, traceback):
         self.finish()
-        return True
+        return False
 
     def start(self):
         self.f = ftd2xx.openEx(self.SERIAL.encode())

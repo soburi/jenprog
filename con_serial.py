@@ -85,7 +85,7 @@ class SerialBootloader(JennicProtocol):
 
     def __exit__(self, type, value, traceback):
         self.finish()
-        return True
+        return False
 
     def talk(self, type, anstype, addr=None, mlen=None, data=None):
         length = 3

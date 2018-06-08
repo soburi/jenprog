@@ -83,7 +83,7 @@ class FtdiBootloader(JennicProtocol):
 
     def __exit__(self, type, value, traceback):
         self.finish()
-        return True
+        return False
 
     def start(self):
         self.f.usb_open_desc(self.VID, self.PID, None, self.SERIAL)
