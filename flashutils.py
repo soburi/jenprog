@@ -33,6 +33,19 @@
 import sys
 import logging
 
+FLASH_ERASE       = 0x07
+FLASH_PROGRAM     = 0x09
+FLASH_READ        = 0x0B
+SECTOR_ERASE      = 0x0D  # not use
+WRITE_SR          = 0x0F  # not use
+RAM_WRITE         = 0x1D  # not use
+RAM_READ          = 0x1F
+RUN               = 0x21
+READ_FLASH_ID     = 0x25
+CHANGE_BAUD_RATE  = 0x27
+SELECT_FLASH_TYPE = 0x2C
+GET_CHIP_ID       = 0x32
+
 class JennicProtocol:
     def __init__(self):
         self.mac_region    = list(range(0x00000030, 0x00000038))
@@ -48,7 +61,7 @@ class JennicProtocol:
 
     def identify_chip(self):
         logging.info("identify chip")
-        chipid = self.talk(0x32, 0x33)
+        chipid = self.talk(GET_CHIP_ID)
         self.chipid_status = chipid[0]
         self.chipid = chipid[1]
         logging.info("chipid=%x"%chipid[1])
@@ -58,14 +71,14 @@ class JennicProtocol:
         if not self.flash_jennicid in (0x00, 0x01, 0x02, 0x03, 0x08):
             logging.error("unsupported flash type")
             sys.exit(1)
-        status = self.talk(0x2C, 0x2D, data = [self.flash_jennicid])[0]
+        status = self.talk(SELECT_FLASH_TYPE, data = [self.flash_jennicid])[0]
         if not status == 0:
             logging.error("could not select detected flash type was: %d"%status)
             sys.exit(1)
 
     def identify_flash(self):
         logging.info("identify flash")
-        flash = self.talk(0x25, 0x26)
+        flash = self.talk(READ_FLASH_ID)
         self.flash_status       = flash[0]
         self.flash_manufacturer = flash[1]
         self.flash_type         = flash[2]
@@ -147,7 +160,7 @@ class JennicProtocol:
         #    print("disabling write protection failed")
         #    sys.exit(1)
 
-        if not self.talk( 0x07, 0x08 )[0] == 0:
+        if not self.talk(FLASH_ERASE)[0] == 0:
             logging.error("erasing did not work")
             sys.exit(1)
 
@@ -170,7 +183,7 @@ class JennicProtocol:
         self.write_flash(self.mac_region[0], self.mac)
 
     def write_flash(self, addr, clist):
-        status = self.talk( 0x09, 0x0A, addr, data=clist)
+        status = self.talk(FLASH_PROGRAM, addr, data=clist)
 
         if status[0] != 0:
             raise Exception("writing failed for addr %i status=%i len=%i"%(addr, status[0], len(status)))
@@ -179,13 +192,13 @@ class JennicProtocol:
         """ reads len bytes starting at address addr from
         flash memory.
         """
-        return self.talk( 0x0B, 0x0C, addr, dlen )[1:] # strip command status
+        return self.talk(FLASH_READ, addr, dlen )[1:] # strip command status
 
     def read_ram(self, addr, dlen):
         """ reads len bytes starting at address addr from
         ram.
         """
-        return self.talk( 0x1F, 0x20, addr, dlen )[1:] # strip command status
+        return self.talk(RAM_READ, addr, dlen )[1:] # strip command status
 
     def finish(self):
         pass
