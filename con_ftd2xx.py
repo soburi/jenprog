@@ -35,7 +35,11 @@ import ftd2xx
 from time import sleep
 from flashutils import JennicProtocol, CHANGE_BAUD_RATE
 import logging
-import usbutils
+import sys
+if sys.platform.startswith('linux'):
+    import usbutils_linux as usbutils
+elif sys.platform.startswith('win32'):
+    import usbutils_win32 as usbutils
 
 """
 class Closure:
@@ -74,7 +78,7 @@ class Ftd2xxBootloader(JennicProtocol):
     # use bitbang mode to jump into programming mode, see
     # enterprogrammingmode
     def __init__(self, device=None, initbaud=38400, progbaud=1000000):
-        iserial = usbutils.query_iserial(device)
+        vid, pid, iserial = usbutils.query_usb_id(device)
 
         devserials= ftd2xx.listDevices();
 

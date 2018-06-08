@@ -35,7 +35,11 @@ import ftdi1
 from time import sleep
 from flashutils import JennicProtocol
 import logging
-import usbutils
+import sys
+if sys.platform.startswith('linux'):
+    import usbutils_linux as usbutils
+elif sys.platform.startswith('win32'):
+    import usbutils_win32 as usbutils
 
 class Closure:
     def __init__(self, arg, func):
@@ -70,11 +74,10 @@ class Ftdi:
 class FtdiBootloader(JennicProtocol):
     # use bitbang mode to jump into programming mode, see
     # enterprogrammingmode
-    def __init__(self, vid='0x0403', pid='0x6001', device=None, initbaud=38400, progbaud=1000000):
+    def __init__(self, device=None, initbaud=38400, progbaud=1000000):
         self.f = Ftdi()
-        self.VID, self.PID = int(vid, 16), int(pid, 16)
         self.INITBAUD, self.PROGBAUD = int(initbaud), int(progbaud)
-        self.SERIAL = usbutils.query_iserial(device)
+        self.VID, self.PID, self.SERIAL = usbutils.query_usb_id(device)
         JennicProtocol.__init__(self)
 
     def __enter__(self):
