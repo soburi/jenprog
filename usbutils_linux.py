@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-def query_iserial(devname):
+def query_usb_id(devname):
     devbody = re.sub(r'^.*\/', '', devname)
     devfile = '/sys/bus/usb-serial/devices/' + devbody
     result = os.readlink(devfile)
