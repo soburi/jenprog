@@ -40,6 +40,8 @@ if sys.platform.startswith('linux'):
     import usbutils_linux as usbutils
 elif sys.platform.startswith('win32'):
     import usbutils_win32 as usbutils
+elif sys.platform.startswith('darwin'):
+    import usbutils_darwin as usbutils
 
 class Closure:
     def __init__(self, arg, func):

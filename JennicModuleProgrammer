@@ -37,7 +37,11 @@ class AttrDict(dict):
         self.__dict__ = self
 
 options = AttrDict(vars(opts))
-options.conn = 'ftd2xx'
+if sys.platform.startswith('windows'):
+    options.conn = 'ftd2xx'
+else
+    options.conn = 'ftdi'
+
 options.show = False
 options.dump = False
 options.erase = False
