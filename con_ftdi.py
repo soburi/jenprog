@@ -102,7 +102,7 @@ class FtdiBootloader(JennicProtocol):
 
         self.f.usb_purge_buffers()
 
-        self.talk(CHANGE_BAUD_RATE, data=[1])
+        self.talk(CHANGE_BAUD_RATE, data=[super().baud_to_div(self.PROGBAUD)])
         self.f.set_baudrate(self.PROGBAUD)
         super().start()
 
