@@ -118,7 +118,7 @@ class Ftd2xxBootloader(JennicProtocol):
 
         self.f.purge()
 
-        self.talk(CHANGE_BAUD_RATE, data=[1])
+        self.talk(CHANGE_BAUD_RATE, data=[super().baud_to_div(self.PROGBAUD)])
         self.f.setBaudRate(self.PROGBAUD)
         super().start()
 

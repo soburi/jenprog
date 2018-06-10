@@ -73,7 +73,7 @@ class RaspiBootloader(JennicProtocol):
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
 
-        self.talk(CHANGE_BAUD_RATE, data=[1])
+        self.talk(CHANGE_BAUD_RATE, data=[super().baud_to_div(self.PROGBAUD)])
         self.ser.baudrate = self.PROGBAUD
         super().start()
 

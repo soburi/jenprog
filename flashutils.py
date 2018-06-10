@@ -202,3 +202,11 @@ class JennicProtocol:
 
     def finish(self):
         pass
+
+    def baud_to_div(self, baud):
+        div = 1
+
+        while (1000000/div) > baud:
+            div = div+1
+
+        return div
