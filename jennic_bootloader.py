@@ -16,6 +16,9 @@ def open_bootloader(options):
     elif options.conn=='ftd2xx':
         import con_ftd2xx
         return con_ftd2xx.Ftd2xxBootloader(options.target, options.initbaud, options.progbaud)
+    elif options.conn=='raspi':
+        import con_raspi
+        return con_raspi.RaspiBootloader(options.target, options.initbaud, options.progbaud, options.reset, options.spimiso)
     else:
         raise Exception('nahh')
 

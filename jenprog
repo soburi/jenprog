@@ -37,7 +37,7 @@ from sys import stderr, exit
 import logging
 import jennic_bootloader
 
-conns  = ('serial', 'ipv6', 'ftdi', 'ftd2xx')
+conns  = ('serial', 'ipv6', 'ftdi', 'ftd2xx', 'raspi')
 parser = OptionParser()
 parser.add_option('-a', '--address', dest='addr', type='int',
                   help='start reading at address', metavar='ADDR', default=0x00000000)
@@ -68,6 +68,10 @@ parser.add_option('-B', '--initbaud', type='int', help='UART initialise baudrate
                   default=38400, dest='initbaud')
 parser.add_option('-b', '--baudrate', type='int', help='UART baudrate (default=1000000)',
                   default=1000000, dest='progbaud')
+parser.add_option('--reset-gpio', type='int', help='GPIO number of reset line for ftdi-type connections',
+                  default=5, dest='reset')
+parser.add_option('--spimiso-gpio', type='int', help='GPIO number of spimiso line for ftdi-type connections',
+                  default=4, dest='spimiso')
 
 (options, args) = parser.parse_args()
 
