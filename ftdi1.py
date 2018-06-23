@@ -285,5 +285,5 @@ def write_eeprom_location(ftdi, eeprom_addr, eeprom_val):
 
 def get_error_string(ftdi):
   ret = ftdi_get_error_string(ftdi)
-  return ret
+  return cast(ret, c_char_p).value.decode('ascii')
 
