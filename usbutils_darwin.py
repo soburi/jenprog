@@ -1,21 +1,20 @@
 import os
 import re
 import sys
+import usb1
 
 def query_usb_id(devname):
-    import usb.core
     idev = -1
 
     serial = re.sub(r'^.*-', '', devname)
 
     # find our device
-    dev = usb.core.find(find_all=True)
-    if dev is not None:
-        for d in dev:
-            if d.serial_number == serial:
-                idev = d.address
-                idVendor = d.idVendor
-                idProduct = d.idProduct
+    with usb1.USBContext() as context:
+        for device in context.getDeviceIterator(skip_on_error=True):
+            if device.getSerialNumber() == serial and device.getSerialNumber() != None:
+                idev = device.getDeviceAddress()
+                idVendor = device.getVendorID()
+                idProduct = device.getProductID()
                 iSerial = serial
                 break
 
