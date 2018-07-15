@@ -35,13 +35,7 @@ import ftdi1
 from time import sleep
 from flashutils import JennicProtocol, CHANGE_BAUD_RATE
 import logging
-import sys
-if sys.platform.startswith('linux'):
-    import usbutils_linux as usbutils
-elif sys.platform.startswith('win32'):
-    import usbutils_win32 as usbutils
-elif sys.platform.startswith('darwin'):
-    import usbutils_darwin as usbutils
+import usbutils
 
 class Closure:
     def __init__(self, arg, func):

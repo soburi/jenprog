@@ -31,7 +31,16 @@
 # Author(s): Philipp Scholl <scholl@teco.edu>
 
 
-from distutils.core import setup
+from setuptools import setup
+import sys
+
+install_requires=['pyserial', 'ctypesftdi1', 'ftd2xx', 'libusb1']
+requires=['pyserial', 'ctypesftdi1', 'ftd2xx', 'libusb1']
+
+if sys.platform.startswith('win32'):
+    reqiures.append('wmi')
+    install_reqiures.append('wmi')
+
 
 setup(name='jenprog',
       version='1.1',
@@ -45,10 +54,11 @@ setup(name='jenprog',
                    'con_raspi',
                    'flashutils',
                    'jennic_bootloader',
+                   'usbutils',
                    'usbutils_darwin',
                    'usbutils_linux',
                    'usbutils_win32', ],
-      packages=['jenprog'],
-      package_dir={'jenprog': '.'},
       scripts=['jenprog', 'JennicModuleProgrammer'],
-      requires=['pyserial', 'ctypesftdi1'])
+      requires=requires,
+      install_requires=install_requires,
+      )
