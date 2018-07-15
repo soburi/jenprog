@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import usb1
 
 def query_usb_id(devname):
     devbody = re.sub(r'^.*\/', '', devname)
@@ -33,7 +34,6 @@ def query_usb_id(devname):
     raise Exception(devname + 'Not Found')
 
 def driver_restore(vid, pid, serial):
-    import usb1
     with usb1.USBContext() as context:
         for device in context.getDeviceIterator(skip_on_error=True):
             if device.getVendorID() == vid and device.getProductID() == pid:
