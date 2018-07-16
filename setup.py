@@ -34,12 +34,10 @@
 from setuptools import setup
 import sys
 
-install_requires=['pyserial', 'ctypesftdi1', 'ftd2xx', 'libusb1']
-requires=['pyserial', 'ctypesftdi1', 'ftd2xx', 'libusb1']
+install_requires=['pyserial>=3.2.1', 'ctypes-ftdi1>=0.0.4', 'libusb1>=1.6.4', 'ftd2xx_py3k>=1.0']
 
 if sys.platform.startswith('win32'):
-    reqiures.append('wmi')
-    install_reqiures.append('wmi')
+    install_requires.append('wmi')
 
 
 setup(name='jenprog',
@@ -59,6 +57,5 @@ setup(name='jenprog',
                    'usbutils_linux',
                    'usbutils_win32', ],
       scripts=['jenprog', 'JennicModuleProgrammer'],
-      requires=requires,
       install_requires=install_requires,
       )
